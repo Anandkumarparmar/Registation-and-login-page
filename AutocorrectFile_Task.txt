@@ -1,0 +1,54 @@
+ private string AutoCorrectFile()
+        {
+            string fileContent = File.ReadAllText(lblPath.Text);
+            string correctFile = "",previousLine=" ";
+            string[] fileArray = fileContent.Split('\n');
+            int columnLength = 0, rowLength = 0, missingLineCount = 0;
+            for (int i = 0; i < fileArray.Length; i++)
+            {
+                if (i == 0)
+                {
+                    string columnLine = fileArray[i];
+                    string[] columnArray = columnLine.Split(',');
+                    columnLength = columnArray.Length;
+                    string correctCloumn = columnLine.Replace('\r','\0');
+                    correctFile += correctCloumn;
+                    continue;
+                }
+                string rowLine = fileArray[i];
+                string[] previousLineArary;
+                string[] rowArray = rowLine.Split(',');
+                rowLength = rowArray.Length;
+                previousLineArary = previousLine.Split(',');
+                if (rowLength != columnLength)
+                {
+                    if (rowLength < columnLength)
+                    {
+                        missingLineCount = columnLength - rowLength;
+                        if (i == 1 || previousLineArary.Length==columnLength)
+                        {
+                            string correctRow = rowLine.Replace('\r', '\0');
+                            correctFile += "\r\n";
+                            correctFile += correctRow;
+                        }
+                        else
+                        {
+                            correctFile += rowLine;
+                        }
+                    }
+                }
+                else
+                {
+                    correctFile += "\n";
+                    correctFile += rowLine;
+                }
+                previousLine = rowLine;
+                previousLineArary=previousLine.Split(',');
+            }
+            if(File.Exists(lblPath.Text))
+            {
+                File.Delete(lblPath.Text);
+                File.WriteAllText(lblPath.Text, correctFile);
+            }
+            return correctFile;
+        }
